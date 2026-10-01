@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { classifiedRowsToCsv, classifyRows, summarize } from "../engine";
 import type { Account, Campaign, SearchTermsResponse, StatusResponse } from "../shared/api";
-import { api } from "./api";
+import { api, runtime } from "./api";
+import { CsvDialog } from "./components/CsvDialog";
 import { Controls } from "./components/Controls";
 import { FilterBar } from "./components/FilterBar";
 import { Header } from "./components/Header";
@@ -36,6 +37,7 @@ export function App() {
   const [filter, setFilter] = useState<FilterKey>("ALL");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [csvPreview, setCsvPreview] = useState<{ csv: string; fileName: string } | null>(null);
 
   const account = useMemo(() => accounts.find((a) => a.id === accountId) ?? null, [accounts, accountId]);
   const rules = useRuleConfig(account);
@@ -138,11 +140,16 @@ export function App() {
   const exportCsv = () => {
     if (selectedRows.length === 0) return;
     const csv = classifiedRowsToCsv(selectedRows, currency);
+    const fileName = `search-terms-${data?.accountId ?? "export"}-${range.startDate}_${range.endDate}.csv`;
+    if (!runtime.canDownload) {
+      setCsvPreview({ csv, fileName });
+      return;
+    }
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `search-terms-${data?.accountId ?? "export"}-${range.startDate}_${range.endDate}.csv`;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -171,7 +178,9 @@ export function App() {
         <div className="notice notice-info">
           <span>
             Showing <strong>synthetic demo data</strong>.{" "}
-            {status.googleAdsConfigured
+            {runtime.standalone
+              ? "This is an interactive preview. Run the app locally to connect your Google Ads account."
+              : status.googleAdsConfigured
               ? "Connect Google Ads to load your real search terms."
               : "Google Ads credentials are not configured on the server (see README)."}
           </span>
@@ -215,6 +224,8 @@ export function App() {
         onExport={exportCsv}
         onClear={() => setSelected(new Set())}
       />
+
+      {csvPreview && <CsvDialog csv={csvPreview.csv} fileName={csvPreview.fileName} onClose={() => setCsvPreview(null)} />}
     </div>
   );
 }

@@ -17,6 +17,14 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
+/** Hosting facts the UI adapts to. The standalone preview build swaps this module out. */
+export const runtime = {
+  /** True when running without a backend (synthetic data in the browser). */
+  standalone: false,
+  /** Whether the page may start a file download. */
+  canDownload: true,
+};
+
 export const api = {
   status: () => request<StatusResponse>("/api/status"),
   accounts: () => request<{ accounts: Account[] }>("/api/accounts").then((r) => r.accounts),

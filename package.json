@@ -11,7 +11,8 @@
     "build": "vite build",
     "start": "tsx server/index.ts --production",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:preview": "node scripts/build-preview.mjs"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

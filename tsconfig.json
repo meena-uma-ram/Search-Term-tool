@@ -15,5 +15,5 @@
     "isolatedModules": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["src", "server", "tests", "vite.config.ts", "vitest.config.ts"]
+  "include": ["src", "server", "tests", "vite.config.ts", "vite.preview.config.ts", "vitest.config.ts"]
 }

@@ -1,5 +1,5 @@
 import type { StatusResponse } from "../../shared/api";
-import { api } from "../api";
+import { api, runtime } from "../api";
 
 interface Props {
   status: StatusResponse | null;
@@ -26,7 +26,13 @@ export function Header({ status, onDisconnect }: Props) {
             className={`btn btn-primary${status && !status.googleAdsConfigured ? " is-disabled" : ""}`}
             href={api.connectUrl}
             aria-disabled={status ? !status.googleAdsConfigured : undefined}
-            title={status && !status.googleAdsConfigured ? "Google Ads credentials are not configured on the server" : undefined}
+            title={
+              runtime.standalone
+                ? "Not available in this preview. Run the app locally to connect Google Ads."
+                : status && !status.googleAdsConfigured
+                  ? "Google Ads credentials are not configured on the server"
+                  : undefined
+            }
             onClick={(e) => {
               if (status && !status.googleAdsConfigured) e.preventDefault();
             }}
