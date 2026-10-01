@@ -1,3 +1,4 @@
+import { formatNegative } from "./suggest";
 import type { ClassificationTag, ClassifiedRow } from "./types";
 
 export const TAG_LABELS: Record<ClassificationTag, string> = {
@@ -43,6 +44,9 @@ export function classifiedRowsToCsv(rows: readonly ClassifiedRow[], currencyCode
       "Classification tags",
       "Recommendation",
       "Reason",
+      "Suggested negative keyword",
+      "Suggested match type",
+      "Suggestion note",
     ],
     rows.map((r) => [
       r.searchTerm,
@@ -56,6 +60,9 @@ export function classifiedRowsToCsv(rows: readonly ClassifiedRow[], currencyCode
       r.tags.map((t) => TAG_LABELS[t]).join("; "),
       r.recommendation.label,
       r.recommendation.reasons.join(", "),
+      r.suggestion ? formatNegative(r.suggestion.keyword, r.suggestion.matchType) : "",
+      r.suggestion ? (r.suggestion.matchType === "EXACT" ? "Exact" : "Phrase") : "",
+      r.suggestion ? [r.suggestion.reason, r.suggestion.caution].filter(Boolean).join(". ") : "",
     ]),
   );
 }

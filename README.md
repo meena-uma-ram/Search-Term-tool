@@ -50,6 +50,26 @@ Production: `npm run build && NODE_ENV=production SESSION_SECRET=... npm start`
 with the exact reason shown, e.g. `18 clicks · €14.00 spend · 0 conversions`.
 The click and conversion thresholds can be changed.
 
+### Suggested negative keywords
+
+These are suggestions only. Nothing is ever added to Google Ads.
+
+- **Per term**, for every potential negative:
+  - It contains an informational word → phrase negative of that word, e.g.
+    `"free"` or `"how to"`. If several words match, the longest is used.
+  - It contains a competitor name → phrase negative of that name, e.g. `"nike"`.
+  - Anything else → exact negative of the whole term, e.g. `[blue suede shoes]`.
+  - It contains a brand term → always exact, plus a caution.
+- **Suggested negative words panel**: words and two-word phrases that appear
+  in at least 2 different search terms which, added together, have no
+  conversions and at least the potential-negative click threshold. Brand
+  words are never suggested. If a phrase covers exactly the same terms as one
+  of its words, only the phrase is shown (`"near me"`, not `"near"`). Use
+  **Show terms** to see what a phrase negative would block, and
+  **Select terms** to add those terms to the export.
+- The CSV export adds *Suggested negative keyword* (Google Ads notation),
+  *Suggested match type* and *Suggestion note* columns.
+
 How list matching works: text is lowercased, accents are removed and
 punctuation becomes spaces. Entries then match whole words or phrases, so
 `art` does not match `smart`.
@@ -71,6 +91,7 @@ src/engine/            Rule engine: pure TypeScript, no Google Ads or UI depende
   normalize.ts         normalization, phrase matching, canonical keys
   nearDuplicate.ts     deterministic grouping (union-find + bounded Levenshtein)
   classify.ts          classifyRows(), recommend(), summarize()
+  suggest.ts           per-term negative suggestions + shared-word (n-gram) suggestions
   csv.ts               CSV export (RFC 4180, formula-injection safe)
 src/shared/api.ts      JSON contract between backend and browser (no secrets)
 src/client/            React UI (Vite)
@@ -119,6 +140,13 @@ retires versions about a year after release, so bump it when needed.
   restart, and the app runs as a single instance only. Before multi-user
   production, move them to a persistent store and encrypt refresh tokens at
   rest.
+
+## Shareable preview
+
+`npm run build:preview` writes `dist-preview/search-terms-cleaner.html`. This
+single page contains the whole UI with the demo data running in the browser,
+with no backend. React is loaded from cdnjs. Where downloads are blocked,
+export shows the CSV with a Copy button instead.
 
 ## Not in this MVP
 

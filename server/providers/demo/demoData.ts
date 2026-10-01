@@ -77,6 +77,7 @@ const runningShop: DemoAccount = {
     t("running shoes women", RUN_SHOES, "Running Shoes - Women", "PHRASE", 2.9, 0.8, 0.042),
     t("womens running shoes", RUN_SHOES, "Running Shoes - Women", "EXACT", 2.2, 0.83, 0.05),
     t("cheap running shoes", RUN_SHOES, "Running Shoes - Generic", "BROAD", 2.4, 0.6, 0),
+    t("cheap trail running shoes", RUN_TRAIL, "Trail - Shoes", "BROAD", 0.8, 0.7, 0),
     t("free running shoes", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.9, 0.55, 0),
     t("how to choose running shoes", RUN_SHOES, "Running Shoes - Generic", "BROAD", 1.6, 0.7, 0),
     t("what are the best running shoes", RUN_SHOES, "Running Shoes - Generic", "BROAD", 1.2, 0.75, 0.005),
@@ -94,8 +95,16 @@ const runningShop: DemoAccount = {
     t("running shoes for flat feet", RUN_SHOES, "Running Shoes - Generic", "PHRASE", 1.0, 0.85, 0.03),
     t("running shoes flat feet", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.6, 0.85, 0),
     t("running shoe repair", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.5, 0.6, 0),
+    t("trail shoe repair", RUN_TRAIL, "Trail - Shoes", "BROAD", 0.3, 0.6, 0),
     t("running shoes drawing", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.4, 0.5, 0),
     t("running coach salary", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.4, 0.55, 0),
+    t("running shoes second hand", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.7, 0.6, 0),
+    t("second hand trail shoes", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.4, 0.6, 0),
+    t("free running plan", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.6, 0.5, 0),
+    t("free running app", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.5, 0.5, 0),
+    t("running shoes ebay", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.5, 0.65, 0),
+    t("how to clean running shoes", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.6, 0.6, 0),
+    t("how to lace running shoes", RUN_SHOES, "Running Shoes - Generic", "BROAD", 0.5, 0.6, 0),
 
     // Trail
     t("trail running shoes", RUN_TRAIL, "Trail - Shoes", "PHRASE", 3.0, 0.95, 0.04),
@@ -121,6 +130,7 @@ const runningShop: DemoAccount = {
     t("garmin forerunner manual pdf", RUN_SHOP, "All Products", "BROAD", 0.6, 0.4, 0),
     t("running jacket", RUN_SHOP, "All Products", "BROAD", 1.1, 0.5, 0.04),
     t("kids football boots", RUN_SHOP, "All Products", "BROAD", 1.2, 0.45, 0),
+    t("garmin watch manual", RUN_SHOP, "All Products", "BROAD", 0.4, 0.4, 0),
     t("running headlamp", RUN_SHOP, "All Products", "BROAD", 0.6, 0.5, 0.05),
   ],
 };

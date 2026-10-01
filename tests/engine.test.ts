@@ -8,6 +8,7 @@ import {
   findPhraseMatches,
   normalize,
   resolveConfig,
+  suggestNegativeNgrams,
   summarize,
   type SearchTermRow,
 } from "../src/engine";
@@ -140,8 +141,67 @@ describe("csv", () => {
     const csv = classifiedRowsToCsv(rows, "EUR");
     const [header, line] = csv.trim().split("\r\n");
     expect(header).toBe(
-      "Search term,Campaign,Ad group,Match type,Clicks,Cost (EUR),Conversions,Cost per conversion (EUR),Classification tags,Recommendation,Reason",
+      "Search term,Campaign,Ad group,Match type,Clicks,Cost (EUR),Conversions,Cost per conversion (EUR),Classification tags,Recommendation,Reason,Suggested negative keyword,Suggested match type,Suggestion note",
     );
-    expect(line).toBe('"free shoes, cheap",Campaign,Ad group,BROAD,18,14,0,,Zero conversions; Informational,Potential negative keyword,"18 clicks, €14.00 spend, 0 conversions"');
+    expect(line).toBe(
+      '"free shoes, cheap",Campaign,Ad group,BROAD,18,14,0,,Zero conversions; Informational,Potential negative keyword,"18 clicks, €14.00 spend, 0 conversions",' +
+        '"""free""",Phrase,"Informational word ""free"" signals research intent, not buying intent. A phrase negative blocks every search containing this word. Check it is never relevant to your offer."',
+    );
+  });
+});
+
+describe("negative keyword suggestions", () => {
+  const config = { brandTerms: ["stride"], competitorTerms: ["nike"] };
+  const bad = { clicks: 20, cost: 15, conversions: 0 };
+
+  it("suggests phrase / exact negatives by rule", () => {
+    const rows = classifyRows(
+      [row("free running shoes", bad), row("nike pegasus 40", bad), row("blue suede shoes", bad), row("stride running jobs", bad), row("good term", { clicks: 20, conversions: 2 })],
+      config,
+    );
+    const s = Object.fromEntries(rows.map((r) => [r.searchTerm, r.suggestion]));
+    expect(s["free running shoes"]).toMatchObject({ keyword: "free", matchType: "PHRASE" });
+    expect(s["nike pegasus 40"]).toMatchObject({ keyword: "nike", matchType: "PHRASE" });
+    expect(s["blue suede shoes"]).toMatchObject({ keyword: "blue suede shoes", matchType: "EXACT" });
+    // brand terms are never phrase-negated, even with an informational word
+    expect(s["stride running jobs"]).toMatchObject({ keyword: "stride running jobs", matchType: "EXACT" });
+    expect(s["stride running jobs"]!.caution).toMatch(/brand/);
+    expect(s["good term"]).toBeNull();
+  });
+
+  it("prefers the longest informational phrase", () => {
+    const [r] = classifyRows([row("how to fix a leak", bad)], { informationalWords: ["how", "how to"] });
+    expect(r!.suggestion).toMatchObject({ keyword: "how to", matchType: "PHRASE" });
+  });
+
+  it("finds words shared by non-converting terms", () => {
+    const cfg = resolveConfig({ brandTerms: ["acme"] });
+    const rows = classifyRows(
+      [
+        row("cheap running shoes", { clicks: 6, cost: 4, conversions: 0 }),
+        row("cheap trail shoes", { clicks: 5, cost: 3, conversions: 0 }),
+        row("running shoes", { clicks: 50, cost: 40, conversions: 5 }),
+        row("acme cheap", { clicks: 30, cost: 9, conversions: 0 }),
+        row("acme sale", { clicks: 30, cost: 9, conversions: 0 }),
+        row("repair kit", { clicks: 40, cost: 30, conversions: 0 }),
+      ],
+      cfg,
+    );
+    const grams = suggestNegativeNgrams(rows, cfg);
+    const cheap = grams.find((g) => g.ngram === "cheap");
+    expect(cheap).toMatchObject({ termCount: 3, clicks: 41, conversions: 0 });
+    // "running"/"shoes" also appear in a converting term
+    expect(grams.some((g) => g.ngram === "running" || g.ngram === "shoes")).toBe(false);
+    // brand words are never suggested; single-term words need minTerms
+    expect(grams.some((g) => g.ngram.includes("acme") || g.ngram === "repair")).toBe(false);
+  });
+
+  it("keeps the narrower phrase when it covers exactly the same terms as one of its words", () => {
+    const cfg = resolveConfig({});
+    const rows = classifyRows([row("water heater noise", { clicks: 6, conversions: 0 }), row("loud water heater noise", { clicks: 6, conversions: 0 })], cfg);
+    const grams = suggestNegativeNgrams(rows, cfg).map((g) => g.ngram);
+    expect(grams).toContain("heater noise");
+    expect(grams).not.toContain("noise");
+    expect(grams).not.toContain("heater");
   });
 });

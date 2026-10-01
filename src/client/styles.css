@@ -239,7 +239,7 @@ select:focus, input:focus, textarea:focus, .btn:focus-visible, .chip:focus-visib
 .tag-location { background: var(--tag-loc-bg); color: var(--tag-loc-fg); border-color: var(--tag-loc-bd); }
 .tag-near_duplicate { background: var(--tag-dup-bg); color: var(--tag-dup-fg); border-color: var(--tag-dup-bd); }
 
-.rec { background: var(--rec-bg); color: var(--rec-text); border-radius: 8px; padding: 6px 8px; min-width: 190px; }
+.rec { background: var(--rec-bg); color: var(--rec-text); border-radius: 8px; padding: 6px 8px; min-width: 220px; }
 .rec-label { font-weight: 700; font-size: 12px; white-space: nowrap; }
 .rec-reasons { margin: 2px 0 0; padding: 0; list-style: none; font-size: 12px; display: flex; flex-wrap: wrap; gap: 0 6px; }
 .rec-reasons li { white-space: nowrap; }
@@ -274,3 +274,21 @@ select:focus, input:focus, textarea:focus, .btn:focus-visible, .chip:focus-visib
 .dialog-actions > span { margin-right: auto; }
 code { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--surface-2); padding: 1px 4px; border-radius: 4px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Negative keyword suggestions */
+.suggestion { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed currentColor; border-color: color-mix(in srgb, currentColor 30%, transparent); font-size: 12px; }
+.suggestion-label { font-weight: 600; }
+.suggestion-kw { background: var(--surface); color: var(--text); border: 1px solid var(--border); overflow-wrap: anywhere; }
+.suggestion-mt { opacity: 0.8; }
+.suggestion-caution {
+  display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--rec-text); color: var(--rec-bg); font-weight: 800; font-size: 11px; cursor: help;
+}
+.ngrams { padding: 0 16px; }
+.ngrams summary { cursor: pointer; padding: 12px 0; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.ngrams[open] { padding-bottom: 16px; }
+.ngrams p { margin: 0 0 10px; }
+.ngram-scroll { max-height: 320px; border: 1px solid var(--border); border-radius: 8px; }
+.ngram-table tbody tr { cursor: default; }
+.ngram-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.btn-small { padding: 3px 9px; font-size: 12px; font-weight: 600; }

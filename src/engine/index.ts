@@ -5,5 +5,6 @@ export * from "./normalize";
 export * from "./similarity";
 export * from "./nearDuplicate";
 export * from "./classify";
+export * from "./suggest";
 export * from "./csv";
 export * from "./format";

@@ -2,6 +2,7 @@ import { resolveConfig } from "./config";
 import { formatMoney, formatNumber, plural } from "./format";
 import { findNearDuplicates } from "./nearDuplicate";
 import { findPhraseMatches, normalize } from "./normalize";
+import { suggestNegative } from "./suggest";
 import type {
   ClassificationTag,
   ClassifiedRow,
@@ -63,12 +64,14 @@ export function classifyRows(
       tag("NEAR_DUPLICATE", others);
     }
 
+    const recommendation = recommend(row, config, currency);
     return {
       ...row,
       costPerConversion: row.conversions > 0 ? row.cost / row.conversions : null,
       tags,
       matches,
-      recommendation: recommend(row, config, currency),
+      recommendation,
+      suggestion: suggestNegative({ searchTerm: row.searchTerm, tags, matches, recommendation }),
     };
   });
 }

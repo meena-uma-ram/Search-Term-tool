@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { TAG_LABELS, formatMoney, formatNumber, type ClassifiedRow } from "../../engine";
+import { TAG_LABELS, formatMoney, formatNegative, formatNumber, type ClassifiedRow } from "../../engine";
 
 interface Props {
   rows: ClassifiedRow[];
@@ -136,6 +136,14 @@ export function ResultsTable({ rows, currency, loading, selected, onToggle, onSe
                             <li key={reason}>{reason}</li>
                           ))}
                         </ul>
+                        {r.suggestion && (
+                          <div className="suggestion" title={[r.suggestion.reason, r.suggestion.caution].filter(Boolean).join(". ")}>
+                            <span className="suggestion-label">Suggested negative</span>
+                            <code className="suggestion-kw">{formatNegative(r.suggestion.keyword, r.suggestion.matchType)}</code>
+                            <span className="suggestion-mt">{r.suggestion.matchType === "EXACT" ? "exact" : "phrase"}</span>
+                            {r.suggestion.caution && <span className="suggestion-caution" aria-label="Caution">!</span>}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <span className="muted">—</span>

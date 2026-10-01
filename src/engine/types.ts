@@ -62,6 +62,19 @@ export interface Recommendation {
   reasons: string[];
 }
 
+export type NegativeMatchType = "EXACT" | "PHRASE";
+
+/** A suggested negative keyword for one search term. Only a suggestion. */
+export interface NegativeSuggestion {
+  /** Keyword text without match-type punctuation, e.g. "free". */
+  keyword: string;
+  matchType: NegativeMatchType;
+  /** Why this keyword and match type were chosen. */
+  reason: string;
+  /** Set when excluding this keyword needs extra care (e.g. it contains a brand term). */
+  caution?: string;
+}
+
 export interface ClassifiedRow extends SearchTermRow {
   /** cost / conversions, or null when there are no conversions. */
   costPerConversion: number | null;
@@ -69,6 +82,8 @@ export interface ClassifiedRow extends SearchTermRow {
   /** Which list entries matched, keyed by tag (for tooltips / explanations). */
   matches: Partial<Record<ClassificationTag, string[]>>;
   recommendation: Recommendation;
+  /** Present for potential negatives. */
+  suggestion: NegativeSuggestion | null;
 }
 
 export interface Summary {

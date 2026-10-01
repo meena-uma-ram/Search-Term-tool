@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { classifiedRowsToCsv, classifyRows, summarize } from "../engine";
+import { classifiedRowsToCsv, classifyRows, suggestNegativeNgrams, summarize } from "../engine";
 import type { Account, Campaign, SearchTermsResponse, StatusResponse } from "../shared/api";
 import { api, runtime } from "./api";
 import { CsvDialog } from "./components/CsvDialog";
 import { Controls } from "./components/Controls";
 import { FilterBar } from "./components/FilterBar";
 import { Header } from "./components/Header";
+import { NgramPanel } from "./components/NgramPanel";
 import { ResultsTable } from "./components/ResultsTable";
 import { RulesPanel } from "./components/RulesPanel";
 import { SelectionBar } from "./components/SelectionBar";
@@ -36,6 +37,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("ALL");
   const [search, setSearch] = useState("");
+  const [ngramFilter, setNgramFilter] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [csvPreview, setCsvPreview] = useState<{ csv: string; fileName: string } | null>(null);
 
@@ -86,6 +88,7 @@ export function App() {
         if (cancelled) return;
         setData(d);
         setSelected(new Set());
+        setNgramFilter(null);
       })
       .catch((e: Error) => !cancelled && setError(e.message))
       .finally(() => !cancelled && setLoading(false));
@@ -102,17 +105,23 @@ export function App() {
     [data, rules.config, currency],
   );
   const summary = useMemo(() => summarize(classified), [classified]);
+  const ngrams = useMemo(() => suggestNegativeNgrams(classified, rules.config), [classified, rules.config]);
+  const ngramRowIds = useMemo(() => {
+    const hit = ngramFilter ? ngrams.find((n) => n.ngram === ngramFilter) : undefined;
+    return hit ? new Set(hit.rowIds) : null;
+  }, [ngrams, ngramFilter]);
 
   const searched = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return classified;
-    return classified.filter(
+    const base = ngramRowIds ? classified.filter((r) => ngramRowIds.has(r.id)) : classified;
+    if (!q) return base;
+    return base.filter(
       (r) =>
         r.searchTerm.toLowerCase().includes(q) ||
         r.campaignName.toLowerCase().includes(q) ||
         r.adGroupName.toLowerCase().includes(q),
     );
-  }, [classified, search]);
+  }, [classified, search, ngramRowIds]);
 
   const visible = useMemo(() => searched.filter((r) => matchesFilter(r, filter)), [searched, filter]);
 
@@ -206,6 +215,26 @@ export function App() {
       <SummaryCards summary={summary} currency={currency} loading={loading} />
 
       <RulesPanel config={rules.config} currency={currency} onChange={rules.update} onReset={rules.reset} />
+
+      <NgramPanel
+        suggestions={ngrams}
+        currency={currency}
+        selected={selected}
+        activeNgram={ngramRowIds ? ngramFilter : null}
+        onShow={setNgramFilter}
+        onSelectTerms={setMany}
+      />
+
+      {ngramRowIds && ngramFilter && (
+        <div className="notice notice-info">
+          <span>
+            Showing search terms containing <code>{ngramFilter}</code>.
+          </span>
+          <button className="link" onClick={() => setNgramFilter(null)}>
+            Show all terms
+          </button>
+        </div>
+      )}
 
       <FilterBar rows={searched} filter={filter} onFilterChange={setFilter} search={search} onSearchChange={setSearch} />
 
